@@ -8,12 +8,16 @@ public class Gun : MonoBehaviour
 {
     public float fireRate;
     public EnemyMan enemyMan;
+    public LayerMask raycastLayerMask;
     public float range = 20f;
     public float verticalRange = 20f; 
+    public float bigDamage = 2f;
+    public float smallDamage = 1f;
 
     private BoxCollider gunTrigger; 
     private float nextTimeToFire;
 
+    public Vector3 Vector3 { get; private set; }
 
     void Start()
     {
@@ -35,14 +39,35 @@ public class Gun : MonoBehaviour
 
     void Fire()
     { 
-            foreach (var enemy in enemyMan.enemiesInTrigger)
-            {
+        foreach (var enemy in enemyMan.enemiesInTrigger)
+        {
+               var dir  = enemy.transform.position - transform.position;
 
+                RaycastHit hit;
+                if(Physics.Raycast(origin: transform.position, direction: dir, out hit, maxDistance: range * 1.5f, raycastLayerMask))
+                {
+                    if(hit.transform == enemy.transform)
+                    {
 
-                
-            }
+                        float dist = Vector3.Distance(a: enemy.transform.position, b:transform.position);
+
+                        if (dist > range * 0.5f)
+                        {
+
+                            enemy.TakeDamage(smallDamage); // small damage based on distance 
+
+                        }
+                        else
+                        {
+
+                             enemy.TakeDamage(bigDamage); // big damage based on distance 
+                        }
+
+                    }
+
+                }   
+        }
             nextTimeToFire = Time.time + fireRate;
-
     }
 
     private void OnTriggerEnter(Collider other) 
